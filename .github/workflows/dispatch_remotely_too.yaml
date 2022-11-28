@@ -4,7 +4,9 @@ on:
   push:
 
 jobs:
-  label_issue:
+  trigger_remote_dispatch:
+    permissions:
+      actions: write
     runs-on: ubuntu-latest
     steps:
       - env:
