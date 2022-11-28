@@ -5,8 +5,7 @@ on:
 
 jobs:
   trigger_remote_dispatch:
-    permissions:
-      actions: write
+    permissions: write-all
     runs-on: ubuntu-latest
     steps:
       - env:
