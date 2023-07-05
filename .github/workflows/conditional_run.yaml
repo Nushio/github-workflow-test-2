@@ -1,61 +1,38 @@
 name: Conditional Run
 
 on:
-  workflow_dispatch:
-  push:
+    push:
 
 jobs:
-    changes:
-    runs-on: ubuntu-latest
-    outputs:
-        src: ${{ steps.changes.outputs.src }}
-        folder1: ${{ steps.changes.outputs.src.folder1 }}
-        folder2: ${{ steps.changes.outputs.src.folder2 }}
-        folder3: ${{ steps.changes.outputs.src.folder3 }}
-    steps:
-    - uses: actions/checkout@v3
-    - uses: dorny/paths-filter@v2
-        id: changes
-        with:
-        filters: |
-            src:
-            - 'src/**'
-            folder1:
-            - 'src/folder1/**'
-            folder2:
-            - 'src/folder2/**'
-            folder3:
-            - 'src/folder3/**'      
+    tests:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v3
+            - name: Determine Changes
+              uses: dorny/paths-filter@v2
+              id: filter
+              with:
+                # Path to file where filters are defined
+                filters: |
+                    backend:
+                    - 'src/folder1/**'
+                    frontend:
+                    - 'src/folder2/**'
+                    weekend:
+                        - 'src/folder3/**'
 
-    src:
-    needs: changes
-    if: ${{ needs.changes.outputs.src == 'true' }}
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3
-    - run: echo 'src changed'
+            # run only if 'backend' files were changed
+            - name: backend tests
+            if: steps.filter.outputs.backend == 'true'
+            run: echo "backend tests"
 
-    folder1:
-    needs: changes
-    if: ${{ needs.changes.outputs.folder1 == 'true' }}
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3
-    - run: echo 'folder1 changed'
+            # run only if 'frontend' files were changed
+            - name: frontend tests
+            if: steps.filter.outputs.frontend == 'true'
+            run: echo "frontend tests"
 
-    folder2:
-    needs: changes
-    if: ${{ needs.changes.outputs.folder2 == 'true' }}
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3
-    - run: echo 'folder2 changed'
-
-    folder3:
-    needs: changes
-    if: ${{ needs.changes.outputs.folder3 == 'true' }}
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3
-    - run: echo 'folder3 changed'
-    
+            # run if 'backend' or 'frontend' files were changed
+            - name: e2e tests
+            if: steps.filter.outputs.backend == 'true' || steps.filter.outputs.frontend == 'true' || steps.filter.outputs.weekend == 'true'
+            run: echo "e2e tests"
