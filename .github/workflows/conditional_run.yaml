@@ -2,6 +2,7 @@ name: Conditional Run
 
 on:
     push:
+    workflow_dispatch:
 
 jobs:
     tests:
@@ -20,7 +21,7 @@ jobs:
                     frontend:
                     - 'src/folder2/**'
                     weekend:
-                        - 'src/folder3/**'
+                    - 'src/folder3/**'
 
             # run only if 'backend' files were changed
           - name: backend tests
