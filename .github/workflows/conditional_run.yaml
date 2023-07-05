@@ -1,0 +1,61 @@
+name: Conditional Run
+
+on:
+  workflow_dispatch:
+  push:
+
+jobs:
+    changes:
+    runs-on: ubuntu-latest
+    outputs:
+        src: ${{ steps.changes.outputs.src }}
+        folder1: ${{ steps.changes.outputs.src.folder1 }}
+        folder2: ${{ steps.changes.outputs.src.folder2 }}
+        folder3: ${{ steps.changes.outputs.src.folder3 }}
+    steps:
+    - uses: actions/checkout@v3
+    - uses: dorny/paths-filter@v2
+        id: changes
+        with:
+        filters: |
+            src:
+            - 'src/**'
+            folder1:
+            - 'src/folder1/**'
+            folder2:
+            - 'src/folder2/**'
+            folder3:
+            - 'src/folder3/**'      
+
+    src:
+    needs: changes
+    if: ${{ needs.changes.outputs.src == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - run: echo 'src changed'
+
+    folder1:
+    needs: changes
+    if: ${{ needs.changes.outputs.folder1 == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - run: echo 'folder1 changed'
+
+    folder2:
+    needs: changes
+    if: ${{ needs.changes.outputs.folder2 == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - run: echo 'folder2 changed'
+
+    folder3:
+    needs: changes
+    if: ${{ needs.changes.outputs.folder3 == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - run: echo 'folder3 changed'
+    
